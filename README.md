@@ -6,6 +6,13 @@ The default trigger values and graph limits are based on:
 * [DSLReports Modems FAQ](http://www.dslreports.com/faq/16085)
 
 
+## Dependencies
+- curl
+- gawk
+- html-xml-utils (for hxnormalize & hxselect)
+- sed
+- xmlstarlet 
+ 
 ## Installation
 - Copy the scripts to your Zabbix ExternalScripts location (default: /usr/lib/zabbix/externalscripts)
 - Make sure the script permissions allow the zabbix server to execute them
