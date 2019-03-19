@@ -1,4 +1,4 @@
-# zabbix-arris-surfboard
+# zabbix-arris-sb6190
 Zabbix template for monitoring [ARRIS SB6190 SURFBoard Cable Modems](https://www.arris.com/surfboard/products/cable-modems/sb6190)
 
 The default trigger values and graph limits are based on:
