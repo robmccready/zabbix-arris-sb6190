@@ -25,14 +25,32 @@
 
 # Get modem address from command line or default it
 modemAddress=$1
-if test -z "$modemAddress"
-then
-	modemAddress=192.168.100.1
+if [ -z "$modemAddress" ]; then
+  modemAddress=192.168.100.1
 fi
+
+username=$2
+if [ -z "$username" ]; then
+  username=admin
+fi
+
+password=$3
+if [ -z "$password" ]; then
+  password=
+fi
+
+rm -f /tmp/arris_sb6190_discover_upstream_channels.cookies
+
+curl \
+  -s \
+  -c /tmp/arris_sb6190_discover_upstream_channels.cookies \
+  -d "username=$username&password=$password&ar_nonce=87580161" \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -X POST http://$modemAddress/cgi-bin/adv_pwd_cgi >/dev/null 2>&1
 
 
 # Retrieve status webpage and parse tables into XML
-CURL_OUTPUT=$(curl -s http://$modemAddress/cgi-bin/status 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
+CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_discover_upstream_channels.cookies -s http://$modemAddress/cgi-bin/status 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
 STATUS_XML="<tables>$CURL_OUTPUT</tables>"
 
 
