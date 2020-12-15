@@ -40,6 +40,7 @@ fi
 
 #echo $modemAddress $username $password
 
+
 #
 # Validate dependencies are available
 #
@@ -75,27 +76,43 @@ if ! [ -x "$(command -v xmlstarlet)" ]; then
 fi
 
 
+# Some modems use cgi-bin/status other modems use RgConnect.asp
+curl --fail -s -o /dev/null http://${modemAddress}/RgConnect.asp >/dev/null 2>&1
+retVal=$?
+if [ $retVal -ne 0 ]; then
+	modemPath="cgi-bin/status"
+else
+	modemPath="RgConnect.asp"
+fi
+
+# Delete previous cookies file if left behind
 rm -f /tmp/arris_sb6190_get_status.cookies
 
-curl \
-  -s \
-  -c /tmp/arris_sb6190_get_status.cookies \
-  -d "username=$username&password=$password&ar_nonce=87580161" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -X POST http://$modemAddress/cgi-bin/adv_pwd_cgi >/dev/null 2>&1
-
+# Only attempt login if user and password given
+if [ ! -z "$username" ] && [ ! -z "$password" ]; then
+	curl \
+  	-s \
+  	-c /tmp/arris_sb6190_get_status.cookies \
+  	-d "username=$username&password=$password&ar_nonce=87580161" \
+  	-H "Content-Type: application/x-www-form-urlencoded" \
+  	-X POST http://$modemAddress/cgi-bin/adv_pwd_cgi >/dev/null 2>&1
+fi
 
 #
 # Check for a valid response code then do second call for data
 #
-RESPONSE_CODE=$(curl -b /tmp/arris_sb6190_get_status.cookies -s -o /dev/null -w "%{http_code}" http://$modemAddress/cgi-bin/status)
+RESPONSE_CODE=$(curl -b /tmp/arris_sb6190_get_status.cookies -s -o /dev/null -w "%{http_code}" http://$modemAddress/$modemPath)
 if [ $RESPONSE_CODE -ne 200 ]; then
   echo '{"success": 0, "message": "HTTP failure code: '$RESPONSE_CODE'"}'
   exit 1
 fi
 
 # Retrieve status webpage and parse tables into XML
-CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_get_status.cookies -s http://$modemAddress/cgi-bin/status 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
+CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_get_status.cookies -s http://$modemAddress/$modemPath 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
+
+# Delete cookies file
+rm -f /tmp/arris_sb6190_get_status.cookies
+
 STATUS_XML="<tables>$CURL_OUTPUT</tables>"
 
 echo "{"

@@ -73,22 +73,35 @@ if ! [ -x "$(command -v xmlstarlet)" ]; then
   exit 1
 fi
 
+# Some modems use cgi-bin/status other modems use RgConnect.asp
+curl --fail -s -o /dev/null http://${modemAddress}/RgConnect.asp >/dev/null 2>&1
+retVal=$?
+if [ $retVal -ne 0 ]; then
+	modemPath="cgi-bin/status"
+else
+	modemPath="RgConnect.asp"
+fi
 
-#
-# Clear cookie file and log into modem
-#
+# Delete previous cookies file if left behind
 rm -f /tmp/arris_sb6190_discover_downstream_channels.cookies
 
-curl \
-  -s \
-  -c /tmp/arris_sb6190_discover_downstream_channels.cookies \
-  -d "username=$username&password=$password&ar_nonce=87580161" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -X POST http://$modemAddress/cgi-bin/adv_pwd_cgi >/dev/null 2>&1
+# Only attempt login if user and password given
+if [ ! -z "$username" ] && [ ! -z "$password" ]; then
+	curl \
+	-s \
+	-c /tmp/arris_sb6190_discover_downstream_channels.cookies \
+	-d "username=$username&password=$password&ar_nonce=87580161" \
+	-H "Content-Type: application/x-www-form-urlencoded" \
+	-X POST http://$modemAddress/cgi-bin/adv_pwd_cgi >/dev/null 2>&1
+fi
 
 
 # Retrieve status webpage and parse tables into XML
-CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_discover_downstream_channels.cookies -s http://$modemAddress/cgi-bin/status 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
+CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_discover_downstream_channels.cookies -s http://$modemAddress/$modemPath 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
+
+# Delete cookies file
+rm -f /tmp/arris_sb6190_discover_downstream_channels.cookies
+
 STATUS_XML="<tables>$CURL_OUTPUT</tables>"
 
 

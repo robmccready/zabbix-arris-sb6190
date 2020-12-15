@@ -39,18 +39,69 @@ if [ -z "$password" ]; then
   password=
 fi
 
+#
+# Validate dependencies are available
+#
+
+if ! [ -x "$(command -v awk)" ]; then
+  echo '{"success": 0, "message": "awk command not found"}'
+  exit 1
+fi
+
+if ! [ -x "$(command -v curl)" ]; then
+  echo '{"success": 0, "message": "curl command not found"}'
+  exit 1
+fi
+
+if ! [ -x "$(command -v hxnormalize)" ]; then
+  echo '{"success": 0, "message": "hxnormalize command not found"}'
+  exit 1
+fi
+
+if ! [ -x "$(command -v hxselect)" ]; then
+  echo '{"success": 0, "message": "hxselect command not found"}'
+  exit 1
+fi
+
+if ! [ -x "$(command -v sed)" ]; then
+  echo '{"success": 0, "message": "sed command not found"}'
+  exit 1
+fi
+
+if ! [ -x "$(command -v xmlstarlet)" ]; then
+  echo '{"success": 0, "message": "xmlstarlet command not found"}'
+  exit 1
+fi
+
+
+# Some modems use cgi-bin/status other modems use RgConnect.asp
+curl --fail -s -o /dev/null http://${modemAddress}/RgConnect.asp >/dev/null 2>&1
+retVal=$?
+if [ $retVal -ne 0 ]; then
+	modemPath="cgi-bin/status"
+else
+	modemPath="RgConnect.asp"
+fi
+
+# Delete previous cookies file if left behind
 rm -f /tmp/arris_sb6190_discover_upstream_channels.cookies
 
-curl \
-  -s \
-  -c /tmp/arris_sb6190_discover_upstream_channels.cookies \
-  -d "username=$username&password=$password&ar_nonce=87580161" \
-  -H "Content-Type: application/x-www-form-urlencoded" \
-  -X POST http://$modemAddress/cgi-bin/adv_pwd_cgi >/dev/null 2>&1
-
+# Only attempt login if user and password given
+if [ ! -z "$username" ] && [ ! -z "$password" ]; then
+	curl \
+	-s \
+	-c /tmp/arris_sb6190_discover_upstream_channels.cookies \
+	-d "username=$username&password=$password&ar_nonce=87580161" \
+	-H "Content-Type: application/x-www-form-urlencoded" \
+	-X POST http://$modemAddress/cgi-bin/adv_pwd_cgi >/dev/null 2>&1
+fi
 
 # Retrieve status webpage and parse tables into XML
-CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_discover_upstream_channels.cookies -s http://$modemAddress/cgi-bin/status 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
+CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_discover_upstream_channels.cookies -s http://$modemAddress/$modemPath 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
+
+# Delete cookies file 
+rm -f /tmp/arris_sb6190_discover_upstream_channels.cookies
+
 STATUS_XML="<tables>$CURL_OUTPUT</tables>"
 
 
