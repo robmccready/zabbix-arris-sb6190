@@ -97,7 +97,7 @@ fi
 
 
 # Retrieve status webpage and parse tables into XML
-CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_discover_downstream_channels.cookies -s http://$modemAddress/$modemPath 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g')
+CURL_OUTPUT=$(curl -b /tmp/arris_sb6190_discover_downstream_channels.cookies -s http://$modemAddress/$modemPath 2>/dev/null | hxnormalize -x -d -l 256 2> /dev/null | hxselect -i 'table.simpleTable' | sed 's/ kSym\/s//g' | sed 's/ MHz//g' | sed 's/ dBmV//g' | sed 's/ dB//g' | sed 's/<td> */<td>/g' | sed 's/&nbsp;//g')
 
 # Delete cookies file
 rm -f /tmp/arris_sb6190_discover_downstream_channels.cookies
