@@ -11,9 +11,12 @@
         <template>
             <template>Template Net ARRIS SB6190 Cable Modem</template>
             <name>Template Net ARRIS SB6190 Cable Modem</name>
-            <description>Monitor an ARRIS SB6190 SURFBoard Cable Modem&#13;
+	    <description>Monitor an ARRIS SB6190/SB6183 SURFBoard Cable Modems&#13;
 &#13;
-v0.9.3 - 2019-02-28</description>
+v1.0.0 - 2020-12-15&#13;
+&#13;
+Maintainer: Rob McCready &lt;rmccready@gmail.com&gt;&#13;
+https://github.com/robmccready/zabbix-arris-sb6190</description>
             <groups>
                 <group>
                     <name>Templates/Network devices</name>

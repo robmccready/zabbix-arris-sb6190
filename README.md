@@ -1,5 +1,6 @@
 # zabbix-arris-sb6190
 Zabbix template for monitoring [ARRIS SB6190 SURFBoard Cable Modems](https://www.arris.com/surfboard/products/cable-modems/sb6190)
+Additionally may support SB6183 although not tested by me
 
 The default trigger values and graph limits are based on:
 * [ARRIS SB6190: CABLE SIGNAL LEVELS](https://arris.secure.force.com/consumers/articles/General_FAQs/SB6190-Cable-Signal-Levels)
