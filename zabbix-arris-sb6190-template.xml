@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
-    <version>4.0</version>
-    <date>2019-03-01T04:20:35Z</date>
+    <version>5.0</version>
+    <date>2020-12-16T19:51:25Z</date>
     <groups>
         <group>
             <name>Templates/Network devices</name>
@@ -11,9 +11,9 @@
         <template>
             <template>Template Net ARRIS SB6190 Cable Modem</template>
             <name>Template Net ARRIS SB6190 Cable Modem</name>
-	    <description>Monitor an ARRIS SB6190/SB6183 SURFBoard Cable Modems&#13;
+            <description>Monitor an ARRIS SB6190/SB6183 SURFBoard Cable Modems&#13;
 &#13;
-v1.0.0 - 2020-12-15&#13;
+v1.0.1 - 2020-12-16&#13;
 &#13;
 Maintainer: Rob McCready &lt;rmccready@gmail.com&gt;&#13;
 https://github.com/robmccready/zabbix-arris-sb6190</description>
@@ -30,2015 +30,740 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
             <items>
                 <item>
                     <name>Modem Status</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                    <type>EXTERNAL</type>
+                    <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     <delay>5m</delay>
                     <history>3d</history>
                     <trends>0</trends>
-                    <status>0</status>
-                    <value_type>4</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
+                    <value_type>TEXT</value_type>
                     <description>External check calling script to pull and parse the status web page from the modem. Result JSON stored in item and dependent items will parse JSON for appropriate values.</description>
-                    <inventory_link>0</inventory_link>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
-                    <master_item/>
                 </item>
                 <item>
                     <name>Response Time</name>
-                    <type>3</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>SIMPLE</type>
                     <key>icmppingsec[{$MODEM_ADDRESS}, 3, 500, 64, 100]</key>
                     <delay>30s</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
+                    <value_type>FLOAT</value_type>
                     <units>s</units>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
                     <description>Response time from modem</description>
-                    <inventory_link>0</inventory_link>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
-                    <master_item/>
+                    <triggers>
+                        <trigger>
+                            <expression>{avg(#3)}&gt;{$TRIGGER_PING_LATENCY_HIGH}</expression>
+                            <name>CABLE MODEM [{$MODEM_ADDRESS}] HIGH LATENCY</name>
+                            <priority>WARNING</priority>
+                            <description>High response time from modem detected</description>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#5)}&gt;{$TRIGGER_PING_LATENCY_HIGH}</expression>
+                            <name>CABLE MODEM [{$MODEM_ADDRESS}] HIGH LATENCY</name>
+                            <priority>WARNING</priority>
+                            <description>High response time from modem detected</description>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Ping</name>
-                    <type>3</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>SIMPLE</type>
                     <key>icmpping[{$MODEM_ADDRESS}, 3, 500, 64, 100]</key>
                     <delay>30s</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
                     <description>Ping the modem to determine if it is online</description>
-                    <inventory_link>0</inventory_link>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
-                    <preprocessing/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
-                    <master_item/>
+                    <triggers>
+                        <trigger>
+                            <expression>{last(#2)}=0</expression>
+                            <name>CABLE MODEM [{$MODEM_ADDRESS}] OFFLINE</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Downstream Channels</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.channel.count</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_channels</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_CHANNEL_COUNT}</expression>
+                            <name>Downstream Channel MISSING</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Downstream Corrected Errors</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.corrected</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_corrected_total</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{change()}&gt;{$TRIGGER_DOWNSTREAM_CHANGE_CORRECTED_HIGH}</expression>
+                            <name>Downstream Corrected Errors HIGH</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Downstream Power (avg)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.power.avg</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_power_average</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{avg(#3)}&gt;{$TRIGGER_DOWNSTREAM_AVG_POWER_HIGH}</expression>
+                            <name>Downstream Power(avg) HIGH</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_AVG_POWER_LOW}</expression>
+                            <name>Downstream Power(avg) LOW</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Downstream Power (max)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.power.max</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_power_maximum</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Downstream Power (min)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.power.min</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_power_minimum</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Downstream SNR (avg)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.snr.avg</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_snr_average</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_AVG_SNR_LOW}</expression>
+                            <name>Downstream SNR(avg) LOW</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Downstream SNR (max)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.snr.max</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_snr_maximum</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Downstream SNR (min)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.snr.min</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_snr_minimum</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Downstream Uncorrectable Errors</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.downstream.uncorrectables</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.downstream_uncorrectable_total</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{change()}&gt;{$TRIGGER_DOWNSTREAM_CHANGE_UNCORRECTABLE_HIGH}</expression>
+                            <name>Downstream Uncorrectable Errors HIGH</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Boot</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.status.boot</key>
                     <delay>0</delay>
                     <history>1w</history>
                     <trends>0</trends>
-                    <status>0</status>
-                    <value_type>4</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>TEXT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.boot_state</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Configuration</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.status.configuration</key>
                     <delay>0</delay>
                     <history>1w</history>
                     <trends>0</trends>
-                    <status>0</status>
-                    <value_type>4</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>TEXT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.configuration_file</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Connectivity</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.status.connectivity</key>
                     <delay>0</delay>
                     <history>1w</history>
                     <trends>0</trends>
-                    <status>0</status>
-                    <value_type>4</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>TEXT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.connectivity_state</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Upstream Channels</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.upstream.channel.count</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>3</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.upstream_channels</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{avg(#3)}&lt;{$TRIGGER_UPSTREAM_CHANNEL_COUNT}</expression>
+                            <name>Upstream Channel MISSING</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Upstream Power (avg)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.upstream.power.avg</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.upstream_power_average</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
+                    <triggers>
+                        <trigger>
+                            <expression>{last(#3)}&gt;{$TRIGGER_UPSTREAM_AVG_POWER_HIGH}</expression>
+                            <name>Upstream Power (avg) HIGH</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(#3)}&lt;{$TRIGGER_UPSTREAM_AVG_POWER_LOW}</expression>
+                            <name>Upstream Power (avg) LOW</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
                 </item>
                 <item>
                     <name>Upstream Power (max)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.upstream.power.max</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.upstream_power_maximum</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Upstream Power (min)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.upstream.power.min</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.upstream_power_minimum</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Upstream SymbolRate (avg)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.upstream.symbolrate.avg</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.upstream_symbol_rate_average</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Upstream Symbol Rate (max)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.upstream.symbolrate.max</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.upstream_symbol_rate_maximum</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
                 <item>
                     <name>Upstream Symbol Rate (min)</name>
-                    <type>18</type>
-                    <snmp_community/>
-                    <snmp_oid/>
+                    <type>DEPENDENT</type>
                     <key>sb6190.upstream.symbolrate.min</key>
                     <delay>0</delay>
                     <history>1w</history>
-                    <trends>365d</trends>
-                    <status>0</status>
-                    <value_type>0</value_type>
-                    <allowed_hosts/>
-                    <units/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <description/>
-                    <inventory_link>0</inventory_link>
+                    <value_type>FLOAT</value_type>
                     <applications>
                         <application>
                             <name>Status</name>
                         </application>
                     </applications>
-                    <valuemap/>
-                    <logtimefmt/>
                     <preprocessing>
                         <step>
-                            <type>12</type>
+                            <type>JSONPATH</type>
                             <params>$.upstream_symbol_rate_minimum</params>
                         </step>
                     </preprocessing>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <output_format>0</output_format>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                     <master_item>
-                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                        <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     </master_item>
                 </item>
             </items>
             <discovery_rules>
                 <discovery_rule>
                     <name>SB6190 Downstream Channel Discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>arris_sb6190_discover_downstream_channels.sh[{$MODEM_ADDRESS}]</key>
+                    <type>EXTERNAL</type>
+                    <key>arris_sb6190_discover_downstream_channels.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     <delay>1d</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
-                    <lifetime>30d</lifetime>
                     <description>Discover downstream channels</description>
                     <item_prototypes>
                         <item_prototype>
                             <name>Downstream Channel {#CHANNELID} Corrected</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.downstream.corrected[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.downstream[{#INDEX}].corrected</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                         <item_prototype>
                             <name>Downstream Channel {#CHANNELID} Frequency</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.downstream.frequency[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
                             <trends>0</trends>
-                            <status>0</status>
-                            <value_type>4</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
+                            <value_type>TEXT</value_type>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.downstream[{#INDEX}].frequency</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                         <item_prototype>
                             <name>Downstream Channel {#CHANNELID} Modulation</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.downstream.modulation[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
                             <trends>0</trends>
-                            <status>0</status>
-                            <value_type>4</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
+                            <value_type>TEXT</value_type>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.downstream[{#INDEX}].modulation</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                         <item_prototype>
                             <name>Downstream Channel {#CHANNELID} Power</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.downstream.power[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>dBmV</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.downstream[{#INDEX}].power</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{avg(#3)}&gt;{$TRIGGER_DOWNSTREAM_CHANNEL_POWER_HIGH}</expression>
+                                    <name>Downstream Power [{#CHANNELID}] HIGH</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_CHANNEL_POWER_LOW}</expression>
+                                    <name>Downstream Power [{#CHANNELID}] LOW</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>Downstream Channel {#CHANNELID} SNR</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.downstream.snr[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
+                            <value_type>FLOAT</value_type>
                             <units>dB</units>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.downstream[{#INDEX}].snr</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_CHANNEL_SNR_LOW}</expression>
+                                    <name>Downstream SNR [{#CHANNELID}] LOW</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>Downstream Channel {#CHANNELID} Status</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.downstream.status[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
                             <trends>0</trends>
-                            <status>0</status>
-                            <value_type>4</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
+                            <value_type>TEXT</value_type>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.downstream[{#INDEX}].lock_status</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                         <item_prototype>
                             <name>Downstream Channel {#CHANNELID} Uncorrectable</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.downstream.uncorrectables[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.downstream[{#INDEX}].uncorrectables</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes>
-                        <trigger_prototype>
-                            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.power[{#CHANNELID}].avg(#3)}&gt;{$TRIGGER_DOWNSTREAM_CHANNEL_POWER_HIGH}</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>Downstream Power [{#CHANNELID}] HIGH</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>2</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.power[{#CHANNELID}].avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_CHANNEL_POWER_LOW}</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>Downstream Power [{#CHANNELID}] LOW</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>2</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.snr[{#CHANNELID}].avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_CHANNEL_SNR_LOW}</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>Downstream SNR [{#CHANNELID}] LOW</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>2</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                    </trigger_prototypes>
                     <graph_prototypes>
                         <graph_prototype>
                             <name>Downstream Power [{#CHANNELID}]</name>
-                            <width>900</width>
-                            <height>200</height>
-                            <yaxismin>-10.0000</yaxismin>
-                            <yaxismax>10.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>1</ymin_type_1>
-                            <ymax_type_1>1</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
+                            <yaxismin>-10</yaxismin>
+                            <yaxismax>10</yaxismax>
+                            <ymin_type_1>FIXED</ymin_type_1>
+                            <ymax_type_1>FIXED</ymax_type_1>
                             <graph_items>
                                 <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
                                     <color>FFFFFF</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
                                     <item>
                                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                                         <key>sb6190.downstream.power[{#CHANNELID}]</key>
@@ -2048,29 +773,13 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                         </graph_prototype>
                         <graph_prototype>
                             <name>Downstream SNR [{#CHANNELID}]</name>
-                            <width>900</width>
-                            <height>200</height>
-                            <yaxismin>30.0000</yaxismin>
-                            <yaxismax>50.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>1</ymin_type_1>
-                            <ymax_type_1>1</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
+                            <yaxismin>30</yaxismin>
+                            <yaxismax>50</yaxismax>
+                            <ymin_type_1>FIXED</ymin_type_1>
+                            <ymax_type_1>FIXED</ymax_type_1>
                             <graph_items>
                                 <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
                                     <color>00BFFF</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
                                     <item>
                                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                                         <key>sb6190.downstream.snr[{#CHANNELID}]</key>
@@ -2079,454 +788,143 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                             </graph_items>
                         </graph_prototype>
                     </graph_prototypes>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
                 <discovery_rule>
                     <name>SB6190 Upstream Channel Discovery</name>
-                    <type>10</type>
-                    <snmp_community/>
-                    <snmp_oid/>
-                    <key>arris_sb6190_discover_upstream_channels.sh[{$MODEM_ADDRESS}]</key>
+                    <type>EXTERNAL</type>
+                    <key>arris_sb6190_discover_upstream_channels.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                     <delay>1d</delay>
-                    <status>0</status>
-                    <allowed_hosts/>
-                    <snmpv3_contextname/>
-                    <snmpv3_securityname/>
-                    <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                    <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                    <snmpv3_authpassphrase/>
-                    <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                    <snmpv3_privpassphrase/>
-                    <params/>
-                    <ipmi_sensor/>
-                    <authtype>0</authtype>
-                    <username/>
-                    <password/>
-                    <publickey/>
-                    <privatekey/>
-                    <port/>
-                    <filter>
-                        <evaltype>0</evaltype>
-                        <formula/>
-                        <conditions/>
-                    </filter>
-                    <lifetime>30d</lifetime>
                     <description>Discover upstream channels</description>
                     <item_prototypes>
                         <item_prototype>
                             <name>Upstream Channel [{#CHANNELID}] Channel Type</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.upstream.channeltypel[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
                             <trends>0</trends>
-                            <status>0</status>
-                            <value_type>4</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
+                            <value_type>TEXT</value_type>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.upstream[{#INDEX}].channel_type</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                         <item_prototype>
                             <name>Upstream Channel [{#CHANNELID}] Frequency</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.upstream.frequency[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
                             <trends>0</trends>
-                            <status>0</status>
-                            <value_type>4</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
+                            <value_type>TEXT</value_type>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.upstream[{#INDEX}].frequency</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                         <item_prototype>
                             <name>Upstream Channel [{#CHANNELID}] Power</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.upstream.power[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>0</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
+                            <value_type>FLOAT</value_type>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.upstream[{#INDEX}].power</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{avg(#3)}&gt;{$TRIGGER_UPSTREAM_CHANNEL_POWER_HIGH}</expression>
+                                    <name>Upstream Power [{#CHANNELID}] HIGH</name>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{avg(#3)}&lt;{$TRIGGER_UPSTREAM_CHANNEL_POWER_LOW}</expression>
+                                    <name>Upstream Power [{#CHANNELID}] LOW</name>
+                                </trigger_prototype>
+                            </trigger_prototypes>
                         </item_prototype>
                         <item_prototype>
                             <name>Upstream Channel [{#CHANNELID}] Status</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.upstream.status[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
                             <trends>0</trends>
-                            <status>0</status>
-                            <value_type>4</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
+                            <value_type>TEXT</value_type>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.upstream[{#INDEX}].lock_status</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                         <item_prototype>
                             <name>Upstream Channel [{#CHANNELID}] Symbol Rate</name>
-                            <type>18</type>
-                            <snmp_community/>
-                            <snmp_oid/>
+                            <type>DEPENDENT</type>
                             <key>sb6190.upstream.symbolrate[{#CHANNELID}]</key>
                             <delay>0</delay>
                             <history>1w</history>
-                            <trends>365d</trends>
-                            <status>0</status>
-                            <value_type>3</value_type>
-                            <allowed_hosts/>
-                            <units/>
-                            <snmpv3_contextname/>
-                            <snmpv3_securityname/>
-                            <snmpv3_securitylevel>0</snmpv3_securitylevel>
-                            <snmpv3_authprotocol>0</snmpv3_authprotocol>
-                            <snmpv3_authpassphrase/>
-                            <snmpv3_privprotocol>0</snmpv3_privprotocol>
-                            <snmpv3_privpassphrase/>
-                            <params/>
-                            <ipmi_sensor/>
-                            <authtype>0</authtype>
-                            <username/>
-                            <password/>
-                            <publickey/>
-                            <privatekey/>
-                            <port/>
-                            <description/>
-                            <inventory_link>0</inventory_link>
                             <applications>
                                 <application>
                                     <name>Status</name>
                                 </application>
                             </applications>
-                            <valuemap/>
-                            <logtimefmt/>
                             <preprocessing>
                                 <step>
-                                    <type>12</type>
+                                    <type>JSONPATH</type>
                                     <params>$.upstream[{#INDEX}].symbol_rate</params>
                                 </step>
                             </preprocessing>
-                            <jmx_endpoint/>
-                            <timeout>3s</timeout>
-                            <url/>
-                            <query_fields/>
-                            <posts/>
-                            <status_codes>200</status_codes>
-                            <follow_redirects>1</follow_redirects>
-                            <post_type>0</post_type>
-                            <http_proxy/>
-                            <headers/>
-                            <retrieve_mode>0</retrieve_mode>
-                            <request_method>0</request_method>
-                            <output_format>0</output_format>
-                            <allow_traps>0</allow_traps>
-                            <ssl_cert_file/>
-                            <ssl_key_file/>
-                            <ssl_key_password/>
-                            <verify_peer>0</verify_peer>
-                            <verify_host>0</verify_host>
-                            <application_prototypes/>
                             <master_item>
-                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}]</key>
+                                <key>arris_sb6190_get_status.sh[{$MODEM_ADDRESS}, {$MODEM_USERNAME}, {$MODEM_PASSWORD}]</key>
                             </master_item>
                         </item_prototype>
                     </item_prototypes>
-                    <trigger_prototypes>
-                        <trigger_prototype>
-                            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.upstream.power[{#CHANNELID}].avg(#3)}&gt;{$TRIGGER_UPSTREAM_CHANNEL_POWER_HIGH}</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>Upstream Power [{#CHANNELID}] HIGH</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>0</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                        <trigger_prototype>
-                            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.upstream.power[{#CHANNELID}].avg(#3)}&lt;{$TRIGGER_UPSTREAM_CHANNEL_POWER_LOW}</expression>
-                            <recovery_mode>0</recovery_mode>
-                            <recovery_expression/>
-                            <name>Upstream Power [{#CHANNELID}] LOW</name>
-                            <correlation_mode>0</correlation_mode>
-                            <correlation_tag/>
-                            <url/>
-                            <status>0</status>
-                            <priority>0</priority>
-                            <description/>
-                            <type>0</type>
-                            <manual_close>0</manual_close>
-                            <dependencies/>
-                            <tags/>
-                        </trigger_prototype>
-                    </trigger_prototypes>
                     <graph_prototypes>
                         <graph_prototype>
                             <name>Upstream Power [{#CHANNELID}]</name>
-                            <width>900</width>
-                            <height>200</height>
-                            <yaxismin>0.0000</yaxismin>
-                            <yaxismax>100.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>0</ymin_type_1>
-                            <ymax_type_1>0</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
                             <graph_items>
                                 <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
                                     <color>199C0D</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
                                     <item>
                                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                                         <key>sb6190.upstream.power[{#CHANNELID}]</key>
@@ -2536,29 +934,9 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                         </graph_prototype>
                         <graph_prototype>
                             <name>Upstream SymbolRate [{#CHANNELID}]</name>
-                            <width>900</width>
-                            <height>200</height>
-                            <yaxismin>0.0000</yaxismin>
-                            <yaxismax>100.0000</yaxismax>
-                            <show_work_period>1</show_work_period>
-                            <show_triggers>1</show_triggers>
-                            <type>0</type>
-                            <show_legend>1</show_legend>
-                            <show_3d>0</show_3d>
-                            <percent_left>0.0000</percent_left>
-                            <percent_right>0.0000</percent_right>
-                            <ymin_type_1>0</ymin_type_1>
-                            <ymax_type_1>0</ymax_type_1>
-                            <ymin_item_1>0</ymin_item_1>
-                            <ymax_item_1>0</ymax_item_1>
                             <graph_items>
                                 <graph_item>
-                                    <sortorder>0</sortorder>
-                                    <drawtype>0</drawtype>
                                     <color>199C0D</color>
-                                    <yaxisside>0</yaxisside>
-                                    <calc_fnc>2</calc_fnc>
-                                    <type>0</type>
                                     <item>
                                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                                         <key>sb6190.upstream.symbolrate[{#CHANNELID}]</key>
@@ -2567,32 +945,19 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                             </graph_items>
                         </graph_prototype>
                     </graph_prototypes>
-                    <host_prototypes/>
-                    <jmx_endpoint/>
-                    <timeout>3s</timeout>
-                    <url/>
-                    <query_fields/>
-                    <posts/>
-                    <status_codes>200</status_codes>
-                    <follow_redirects>1</follow_redirects>
-                    <post_type>0</post_type>
-                    <http_proxy/>
-                    <headers/>
-                    <retrieve_mode>0</retrieve_mode>
-                    <request_method>0</request_method>
-                    <allow_traps>0</allow_traps>
-                    <ssl_cert_file/>
-                    <ssl_key_file/>
-                    <ssl_key_password/>
-                    <verify_peer>0</verify_peer>
-                    <verify_host>0</verify_host>
                 </discovery_rule>
             </discovery_rules>
-            <httptests/>
             <macros>
                 <macro>
                     <macro>{$MODEM_ADDRESS}</macro>
                     <value>192.168.100.1</value>
+                </macro>
+                <macro>
+                    <macro>{$MODEM_PASSWORD}</macro>
+                </macro>
+                <macro>
+                    <macro>{$MODEM_USERNAME}</macro>
+                    <value>admin</value>
                 </macro>
                 <macro>
                     <macro>{$TRIGGER_DOWNSTREAM_AVG_POWER_HIGH}</macro>
@@ -2655,7 +1020,6 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                     <value>33</value>
                 </macro>
             </macros>
-            <templates/>
             <screens>
                 <screen>
                     <name>Monitoring</name>
@@ -2664,50 +1028,55 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                     <screen_items>
                         <screen_item>
                             <resourcetype>0</resourcetype>
-                            <width>500</width>
-                            <height>100</height>
-                            <x>0</x>
-                            <y>0</y>
-                            <colspan>1</colspan>
-                            <rowspan>1</rowspan>
-                            <elements>0</elements>
-                            <valign>0</valign>
-                            <halign>0</halign>
                             <style>0</style>
-                            <url/>
-                            <dynamic>0</dynamic>
-                            <sort_triggers>0</sort_triggers>
                             <resource>
                                 <name>Downstream Power</name>
                                 <host>Template Net ARRIS SB6190 Cable Modem</host>
                             </resource>
-                            <max_columns>3</max_columns>
-                            <application/>
-                        </screen_item>
-                        <screen_item>
-                            <resourcetype>0</resourcetype>
                             <width>500</width>
                             <height>100</height>
-                            <x>1</x>
+                            <x>0</x>
                             <y>0</y>
                             <colspan>1</colspan>
                             <rowspan>1</rowspan>
                             <elements>0</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
+                            <url/>
+                            <application/>
+                            <max_columns>3</max_columns>
+                        </screen_item>
+                        <screen_item>
+                            <resourcetype>0</resourcetype>
+                            <style>0</style>
                             <resource>
                                 <name>Upstream Power</name>
                                 <host>Template Net ARRIS SB6190 Cable Modem</host>
                             </resource>
-                            <max_columns>3</max_columns>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>1</x>
+                            <y>0</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                         <screen_item>
                             <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Response Time</name>
+                                <host>Template Net ARRIS SB6190 Cable Modem</host>
+                            </resource>
                             <width>500</width>
                             <height>100</height>
                             <x>2</x>
@@ -2717,41 +1086,41 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                             <elements>0</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>Response Time</name>
-                                <host>Template Net ARRIS SB6190 Cable Modem</host>
-                            </resource>
-                            <max_columns>3</max_columns>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                         <screen_item>
                             <resourcetype>0</resourcetype>
-                            <width>500</width>
-                            <height>100</height>
-                            <x>0</x>
-                            <y>1</y>
-                            <colspan>1</colspan>
-                            <rowspan>1</rowspan>
-                            <elements>0</elements>
-                            <valign>0</valign>
-                            <halign>0</halign>
                             <style>0</style>
-                            <url/>
-                            <dynamic>0</dynamic>
-                            <sort_triggers>0</sort_triggers>
                             <resource>
                                 <name>Downstream SNR</name>
                                 <host>Template Net ARRIS SB6190 Cable Modem</host>
                             </resource>
-                            <max_columns>3</max_columns>
+                            <width>500</width>
+                            <height>100</height>
+                            <x>0</x>
+                            <y>1</y>
+                            <colspan>1</colspan>
+                            <rowspan>1</rowspan>
+                            <elements>0</elements>
+                            <valign>0</valign>
+                            <halign>0</halign>
+                            <dynamic>0</dynamic>
+                            <sort_triggers>0</sort_triggers>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                         <screen_item>
                             <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Upstream Symbol Rate</name>
+                                <host>Template Net ARRIS SB6190 Cable Modem</host>
+                            </resource>
                             <width>500</width>
                             <height>100</height>
                             <x>1</x>
@@ -2761,19 +1130,19 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                             <elements>0</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>Upstream Symbol Rate</name>
-                                <host>Template Net ARRIS SB6190 Cable Modem</host>
-                            </resource>
-                            <max_columns>3</max_columns>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                         <screen_item>
                             <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Corrected Errors</name>
+                                <host>Template Net ARRIS SB6190 Cable Modem</host>
+                            </resource>
                             <width>500</width>
                             <height>100</height>
                             <x>2</x>
@@ -2783,19 +1152,19 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                             <elements>0</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>Corrected Errors</name>
-                                <host>Template Net ARRIS SB6190 Cable Modem</host>
-                            </resource>
-                            <max_columns>3</max_columns>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                         <screen_item>
                             <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Downstream Channels</name>
+                                <host>Template Net ARRIS SB6190 Cable Modem</host>
+                            </resource>
                             <width>500</width>
                             <height>100</height>
                             <x>0</x>
@@ -2805,19 +1174,19 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                             <elements>0</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>Downstream Channels</name>
-                                <host>Template Net ARRIS SB6190 Cable Modem</host>
-                            </resource>
-                            <max_columns>3</max_columns>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                         <screen_item>
                             <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Upstream Channels</name>
+                                <host>Template Net ARRIS SB6190 Cable Modem</host>
+                            </resource>
                             <width>500</width>
                             <height>100</height>
                             <x>1</x>
@@ -2827,19 +1196,19 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                             <elements>0</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>Upstream Channels</name>
-                                <host>Template Net ARRIS SB6190 Cable Modem</host>
-                            </resource>
-                            <max_columns>3</max_columns>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                         <screen_item>
                             <resourcetype>0</resourcetype>
+                            <style>0</style>
+                            <resource>
+                                <name>Uncorrectable Errors</name>
+                                <host>Template Net ARRIS SB6190 Cable Modem</host>
+                            </resource>
                             <width>500</width>
                             <height>100</height>
                             <x>2</x>
@@ -2849,226 +1218,24 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                             <elements>0</elements>
                             <valign>0</valign>
                             <halign>0</halign>
-                            <style>0</style>
-                            <url/>
                             <dynamic>0</dynamic>
                             <sort_triggers>0</sort_triggers>
-                            <resource>
-                                <name>Uncorrectable Errors</name>
-                                <host>Template Net ARRIS SB6190 Cable Modem</host>
-                            </resource>
-                            <max_columns>3</max_columns>
+                            <url/>
                             <application/>
+                            <max_columns>3</max_columns>
                         </screen_item>
                     </screen_items>
                 </screen>
             </screens>
         </template>
     </templates>
-    <triggers>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:icmppingsec[{$MODEM_ADDRESS}, 3, 500, 64, 100].avg(#3)}&gt;{$TRIGGER_PING_LATENCY_HIGH}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>CABLE MODEM [{$MODEM_ADDRESS}] HIGH LATENCY</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description>High response time from modem detected</description>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:icmpping[{$MODEM_ADDRESS}, 3, 500, 64, 100].last(#2)}=0</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>CABLE MODEM [{$MODEM_ADDRESS}] OFFLINE</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.channel.count.avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_CHANNEL_COUNT}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Downstream Channel MISSING</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.corrected.change()}&gt;{$TRIGGER_DOWNSTREAM_CHANGE_CORRECTED_HIGH}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Downstream Corrected Errors HIGH</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.power.avg.avg(#3)}&gt;{$TRIGGER_DOWNSTREAM_AVG_POWER_HIGH}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Downstream Power(avg) HIGH</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.power.avg.avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_AVG_POWER_LOW}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Downstream Power(avg) LOW</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.snr.avg.avg(#3)}&lt;{$TRIGGER_DOWNSTREAM_AVG_SNR_LOW}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Downstream SNR(avg) LOW</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.downstream.uncorrectables.change()}&gt;{$TRIGGER_DOWNSTREAM_CHANGE_UNCORRECTABLE_HIGH}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Downstream Uncorrectable Errors HIGH</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.upstream.channel.count.avg(#3)}&lt;{$TRIGGER_UPSTREAM_CHANNEL_COUNT}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Upstream Channel MISSING</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.upstream.power.avg.last(#3)}&gt;{$TRIGGER_UPSTREAM_AVG_POWER_HIGH}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Upstream Power (avg) HIGH</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-        <trigger>
-            <expression>{Template Net ARRIS SB6190 Cable Modem:sb6190.upstream.power.avg.avg(#3)}&lt;{$TRIGGER_UPSTREAM_AVG_POWER_LOW}</expression>
-            <recovery_mode>0</recovery_mode>
-            <recovery_expression/>
-            <name>Upstream Power (avg) LOW</name>
-            <correlation_mode>0</correlation_mode>
-            <correlation_tag/>
-            <url/>
-            <status>0</status>
-            <priority>2</priority>
-            <description/>
-            <type>0</type>
-            <manual_close>0</manual_close>
-            <dependencies/>
-            <tags/>
-        </trigger>
-    </triggers>
     <graphs>
         <graph>
             <name>Corrected Errors</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>0</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <ymin_type_1>FIXED</ymin_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFFDE7</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.corrected</key>
@@ -3078,29 +1245,13 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
         </graph>
         <graph>
             <name>Downstream Channels</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>35.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>1</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <yaxismax>35</yaxismax>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFEBEE</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>7</calc_fnc>
-                    <type>0</type>
+                    <calc_fnc>ALL</calc_fnc>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.channel.count</key>
@@ -3110,29 +1261,13 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
         </graph>
         <graph>
             <name>Downstream Power</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>-15.0000</yaxismin>
-            <yaxismax>15.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>1</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <yaxismin>-15</yaxismin>
+            <yaxismax>15</yaxismax>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>0040FF</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.power.max</key>
@@ -3140,11 +1275,7 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFEBEE</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.power.avg</key>
@@ -3152,11 +1283,7 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>2</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFFF00</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.power.min</key>
@@ -3166,29 +1293,11 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
         </graph>
         <graph>
             <name>Downstream SNR</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>20.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>0</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <yaxismin>20</yaxismin>
+            <ymin_type_1>FIXED</ymin_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>0040FF</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.snr.max</key>
@@ -3196,11 +1305,7 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFEBEE</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.snr.avg</key>
@@ -3208,11 +1313,7 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>2</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFFF00</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.snr.min</key>
@@ -3221,30 +1322,24 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
             </graph_items>
         </graph>
         <graph>
-            <name>Response Time</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>0</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <name>Ping Response</name>
+            <ymin_type_1>FIXED</ymin_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FCE4EC</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
+                    <item>
+                        <host>Template Net ARRIS SB6190 Cable Modem</host>
+                        <key>icmppingsec[{$MODEM_ADDRESS}, 3, 500, 64, 100]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+        <graph>
+            <name>Response Time</name>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <graph_items>
+                <graph_item>
+                    <color>FCE4EC</color>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>icmppingsec[{$MODEM_ADDRESS}, 3, 500, 64, 100]</key>
@@ -3254,29 +1349,10 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
         </graph>
         <graph>
             <name>Uncorrectable Errors</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>0</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <ymin_type_1>FIXED</ymin_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFFDE7</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.downstream.uncorrectables</key>
@@ -3286,29 +1362,13 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
         </graph>
         <graph>
             <name>Upstream Channels</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>10.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>1</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <yaxismax>10</yaxismax>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFEBEE</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>7</calc_fnc>
-                    <type>0</type>
+                    <calc_fnc>ALL</calc_fnc>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.upstream.channel.count</key>
@@ -3318,29 +1378,13 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
         </graph>
         <graph>
             <name>Upstream Power</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>35.0000</yaxismin>
-            <yaxismax>60.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>1</ymin_type_1>
-            <ymax_type_1>1</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
+            <yaxismin>35</yaxismin>
+            <yaxismax>60</yaxismax>
+            <ymin_type_1>FIXED</ymin_type_1>
+            <ymax_type_1>FIXED</ymax_type_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>0040FF</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.upstream.power.max</key>
@@ -3348,11 +1392,7 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFEBEE</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.upstream.power.avg</key>
@@ -3360,11 +1400,7 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>2</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFFF00</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.upstream.power.min</key>
@@ -3374,29 +1410,9 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
         </graph>
         <graph>
             <name>Upstream Symbol Rate</name>
-            <width>900</width>
-            <height>200</height>
-            <yaxismin>0.0000</yaxismin>
-            <yaxismax>100.0000</yaxismax>
-            <show_work_period>1</show_work_period>
-            <show_triggers>1</show_triggers>
-            <type>0</type>
-            <show_legend>1</show_legend>
-            <show_3d>0</show_3d>
-            <percent_left>0.0000</percent_left>
-            <percent_right>0.0000</percent_right>
-            <ymin_type_1>0</ymin_type_1>
-            <ymax_type_1>0</ymax_type_1>
-            <ymin_item_1>0</ymin_item_1>
-            <ymax_item_1>0</ymax_item_1>
             <graph_items>
                 <graph_item>
-                    <sortorder>0</sortorder>
-                    <drawtype>0</drawtype>
                     <color>0040FF</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.upstream.symbolrate.max</key>
@@ -3404,11 +1420,7 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>1</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFEBEE</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.upstream.symbolrate.avg</key>
@@ -3416,11 +1428,7 @@ https://github.com/robmccready/zabbix-arris-sb6190</description>
                 </graph_item>
                 <graph_item>
                     <sortorder>2</sortorder>
-                    <drawtype>0</drawtype>
                     <color>FFFF00</color>
-                    <yaxisside>0</yaxisside>
-                    <calc_fnc>2</calc_fnc>
-                    <type>0</type>
                     <item>
                         <host>Template Net ARRIS SB6190 Cable Modem</host>
                         <key>sb6190.upstream.symbolrate.min</key>
